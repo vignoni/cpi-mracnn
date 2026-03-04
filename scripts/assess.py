@@ -54,10 +54,10 @@ try:
     time = df_new.iloc[:, 1].values
     plt.figure(figsize=(10, 5))
     plt.plot(time, reference, 'r--', label='Reference', linewidth=2)
-    plt.plot(time, velocity, 'b-', label='Measured Velocity', linewidth=2)
+    plt.plot(time, velocity, 'b-', label='Output', linewidth=2)
     plt.title(f"Latest Submission: {STUDENT_NAME} (RMSE: {rmse_val:.4f})")
     plt.xlabel("Time (s)")
-    plt.ylabel("Velocity")
+    plt.ylabel("Output")
     plt.legend()
     plt.grid(True)
     plt.savefig("latest_result.png")

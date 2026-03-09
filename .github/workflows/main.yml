@@ -1,0 +1,42 @@
+name: MRAC-NN Competition Pipeline
+on:
+  repository_dispatch:
+    types: [new_submission]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install Dependencies
+        run: pip install pandas numpy matplotlib
+
+      - name: Download Student Data
+        run: |
+          # We use a more robust download link for Google Drive raw files
+          FILE_ID="${{ github.event.client_payload.file_id }}"
+          curl -L "https://drive.google.com/uc?export=download&id=${FILE_ID}" -o temp_entrega.csv
+
+      - name: Run Assessment Script
+        env:
+          STUDENT_NAME: ${{ github.event.client_payload.student_name }}
+        run: python scripts/assess.py
+
+      - name: Update Leaderboard and Push
+        run: |
+          git config --global user.name "CPIBot"
+          git config --global user.email "bot@CPI.edu"
+          git add results.csv
+          # We only add the plot if the file was actually created
+          if [ -f latest_result.png ]; then
+            git add latest_result.png
+          fi
+          git commit -m "New result: ${{ github.event.client_payload.student_name }}"
+          git push
